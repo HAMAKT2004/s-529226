@@ -156,7 +156,7 @@ const ComparePage = () => {
             transition={{ duration: 0.4 }}
             className="bg-muted rounded-lg p-8 flex flex-col items-center"
           >
-            <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+            <Scale className="h-12 w-12 text-muted-foreground mb-4" />
             <h1 className="text-2xl font-bold mb-4">Your Compare List is Empty</h1>
             <p className="text-muted-foreground mb-6">
               Add products to compare their specifications and make better buying decisions.
@@ -164,7 +164,7 @@ const ComparePage = () => {
             <Button asChild>
               <Link to="/search">
                 Find Products to Compare
-                <ChevronRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </motion.div>
@@ -192,8 +192,8 @@ const ComparePage = () => {
         
         {loading ? (
           <div className="flex flex-col gap-4">
-            <Skeleton className="h-96 w-full" />
-            <Skeleton className="h-64 w-full" />
+            <div className="h-96 w-full bg-muted animate-pulse rounded-lg" />
+            <div className="h-64 w-full bg-muted animate-pulse rounded-lg" />
           </div>
         ) : (
           <div className="overflow-x-auto">

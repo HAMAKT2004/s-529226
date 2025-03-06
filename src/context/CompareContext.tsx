@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -54,20 +53,16 @@ export const CompareProvider = ({ children }: { children: React.ReactNode }) => 
   }, [favorites]);
 
   const addToCompare = (product: Product) => {
-    if (compareList.length >= 6) {
+    if (compareList.length >= 4) {
       toast({
         title: 'Maximum products reached',
-        description: 'You can compare a maximum of 6 products at once.',
+        description: 'You can compare up to 4 products at once.',
         variant: 'destructive',
       });
       return;
     }
     if (!compareList.some(item => item.id === product.id)) {
-      setCompareList([...compareList, product]);
-      toast({
-        title: 'Added to compare',
-        description: `${product.name} has been added to your compare list.`,
-      });
+      setCompareList(prev => [...prev, product]);
     }
   };
 

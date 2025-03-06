@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useCompare } from "@/context/CompareContext";
-import { Phone, Plus, Check, Heart } from "lucide-react";
+import { Scale, Heart, ArrowRight } from "lucide-react";
 import type { Smartphone } from "@/services/SearchService";
 
 interface ProductCardProps {
@@ -63,20 +63,21 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <img 
           src={product.image} 
           alt={product.name}
-          className={`absolute inset-0 w-full h-full object-contain p-4 transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 w-full h-full object-contain p-4 transition-opacity duration-300 bg-white ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onLoad={() => setImageLoaded(true)}
+          loading="lazy"
         />
       </Link>
       
       <CardContent className="p-4">
-        <div className="flex justify-between items-start">
-          <div>
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1">
             <p className="text-sm text-muted-foreground">{product.brand}</p>
             <Link to={`/product/${product.id}`}>
-              <h3 className="font-medium text-lg hover:text-primary transition-colors">{product.name}</h3>
+              <h3 className="font-medium text-lg hover:text-primary transition-colors line-clamp-2">{product.name}</h3>
             </Link>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 ml-2">
             <Button
               size="sm"
               variant="outline"
@@ -91,50 +92,48 @@ const ProductCard = ({ product }: ProductCardProps) => {
               onClick={handleAddToCompare}
               disabled={isInCompareList(product.id)}
             >
-              {isInCompareList(product.id) ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
+              <Scale className={`h-4 w-4 ${isInCompareList(product.id) ? "text-primary" : ""}`} />
             </Button>
           </div>
         </div>
-        
-        <div className="grid grid-cols-2 gap-2 mt-4">
-          {product.specs.display && (
+
+        <div className="grid grid-cols-2 gap-2 mb-4 bg-muted/50 rounded-lg p-3">
+          {product.specs?.display && (
             <div className="text-xs">
               <span className="text-muted-foreground">Display:</span>
-              <div>{product.specs.display.split(',')[0]}</div>
+              <div className="font-medium truncate">{product.specs.display.split(',')[0]}</div>
             </div>
           )}
-          {product.specs.battery && (
+          {product.specs?.battery && (
             <div className="text-xs">
               <span className="text-muted-foreground">Battery:</span>
-              <div>{product.specs.battery}</div>
+              <div className="font-medium truncate">{product.specs.battery}</div>
             </div>
           )}
-          {product.specs.ram && (
+          {product.specs?.ram && (
             <div className="text-xs">
               <span className="text-muted-foreground">RAM:</span>
-              <div>{product.specs.ram}</div>
+              <div className="font-medium truncate">{product.specs.ram}</div>
             </div>
           )}
-          {product.specs.camera && (
+          {product.specs?.camera && (
             <div className="text-xs">
               <span className="text-muted-foreground">Camera:</span>
-              <div>{product.specs.camera}</div>
+              <div className="font-medium truncate">{product.specs.camera}</div>
             </div>
           )}
         </div>
         
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2">
           <Button asChild size="sm" className="flex-1">
-            <Link to={`/product/${product.id}`}>Details</Link>
+            <Link to={`/product/${product.id}`}>
+              Details
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
           </Button>
           <Button asChild size="sm" variant="outline" className="flex-1">
             <Link to={`/prices/${product.id}`}>
-              <Phone className="mr-1 h-4 w-4" />
-              Prices
+              Compare Prices
             </Link>
           </Button>
         </div>
