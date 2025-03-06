@@ -1,69 +1,32 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useCompare } from '@/context/CompareContext';
-import { Phone, Plus, Check } from 'lucide-react';
+import { Phone, Plus, Check, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-// Fake trending phones data (hardcoded for now)
-const trendingPhonesData = [
-  {
-    id: 'iphone-14-pro',
-    name: 'iPhone 14 Pro',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-14-pro.jpg',
-    brand: 'Apple',
-    price: 999,
-    specs: {
-      display: '6.1 inches',
-      battery: '3200 mAh',
-      ram: '6 GB',
-      camera: '48 MP'
-    }
-  },
-  {
-    id: 'samsung-galaxy-s23-ultra',
-    name: 'Samsung Galaxy S23 Ultra',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s23-ultra-5g.jpg',
-    brand: 'Samsung',
-    price: 1199,
-    specs: {
-      display: '6.8 inches',
-      battery: '5000 mAh',
-      ram: '12 GB',
-      camera: '200 MP'
-    }
-  },
-  {
-    id: 'google-pixel-7-pro',
-    name: 'Google Pixel 7 Pro',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel7-pro-new.jpg',
-    brand: 'Google',
-    price: 899,
-    specs: {
-      display: '6.7 inches',
-      battery: '5000 mAh',
-      ram: '12 GB',
-      camera: '50 MP'
-    }
-  },
-  {
-    id: 'xiaomi-13-pro',
-    name: 'Xiaomi 13 Pro',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/xiaomi-13-pro.jpg',
-    brand: 'Xiaomi',
-    price: 799,
-    specs: {
-      display: '6.73 inches',
-      battery: '4820 mAh',
-      ram: '12 GB',
-      camera: '50 MP'
-    }
-  }
-];
+import SearchService from '@/services/SearchService';
 
 const TrendingPhones = () => {
-  const { addToCompare, isInCompareList } = useCompare();
+  const { addToCompare, isInCompareList, addToFavorites, isInFavorites } = useCompare();
+  const [trendingPhones, setTrendingPhones] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchTrendingPhones = async () => {
+      try {
+        // Get trending phones from the service
+        const phones = SearchService.getTrendingSmartphones();
+        setTrendingPhones(phones);
+      } catch (error) {
+        console.error("Error fetching trending phones:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchTrendingPhones();
+  }, []);
   
   const container = {
     hidden: { opacity: 0 },
@@ -80,6 +43,54 @@ const TrendingPhones = () => {
     show: { opacity: 1, y: 0 }
   };
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((placeholder) => (
+          <div key={placeholder} className="bg-card border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow animate-pulse">
+            <div className="h-64 bg-gray-200"></div>
+            <div className="p-4">
+              <div className="h-4 w-1/3 bg-gray-200 mb-2"></div>
+              <div className="h-6 w-4/5 bg-gray-200 mb-2"></div>
+              <div className="h-4 w-1/5 bg-gray-200 mb-4"></div>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <div className="h-4 bg-gray-200"></div>
+                <div className="h-4 bg-gray-200"></div>
+                <div className="h-4 bg-gray-200"></div>
+                <div className="h-4 bg-gray-200"></div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <div className="h-8 bg-gray-200 flex-1"></div>
+                <div className="h-8 bg-gray-200 flex-1"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Format price in Indian Rupees
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  // Price mapping for trending phones (in ₹)
+  const priceMap: Record<string, number> = {
+    'samsung-galaxy-s23-ultra': 124999,
+    'iphone-14-pro': 119999,
+    'oneplus-12': 64999,
+    'google-pixel-7-pro': 79999,
+    'xiaomi-13-pro': 69999,
+    'samsung-galaxy-s22-ultra': 99999,
+    'samsung-galaxy-s22-plus': 84999,
+    'samsung-galaxy-s22': 69999
+  };
+
   return (
     <motion.div 
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
@@ -87,7 +98,7 @@ const TrendingPhones = () => {
       initial="hidden"
       animate="show"
     >
-      {trendingPhonesData.map((phone) => (
+      {trendingPhones.map((phone) => (
         <motion.div
           key={phone.id}
           variants={item}
@@ -107,26 +118,46 @@ const TrendingPhones = () => {
                 <Link to={`/product/${phone.id}`}>
                   <h3 className="font-medium text-lg hover:text-primary transition-colors">{phone.name}</h3>
                 </Link>
-                <p className="font-bold mt-1">${phone.price}</p>
+                <p className="font-bold mt-1">{formatPrice(priceMap[phone.id] || 79999)}</p>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => addToCompare({ id: phone.id, name: phone.name, image: phone.image })}
-                disabled={isInCompareList(phone.id)}
-              >
-                {isInCompareList(phone.id) ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={isInFavorites(phone.id) ? "text-red-500 hover:text-red-600" : ""}
+                  onClick={() => addToFavorites({
+                    id: phone.id,
+                    name: phone.name,
+                    image: phone.image,
+                    brand: phone.brand
+                  })}
+                >
+                  <Heart className={`h-4 w-4 ${isInFavorites(phone.id) ? "fill-current" : ""}`} />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => addToCompare({ 
+                    id: phone.id, 
+                    name: phone.name, 
+                    image: phone.image,
+                    brand: phone.brand 
+                  })}
+                  disabled={isInCompareList(phone.id)}
+                >
+                  {isInCompareList(phone.id) ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-2 mt-4">
               <div className="text-xs">
                 <span className="text-muted-foreground">Display:</span>
-                <div>{phone.specs.display}</div>
+                <div>{phone.specs.display.split(',')[0]}</div>
               </div>
               <div className="text-xs">
                 <span className="text-muted-foreground">Battery:</span>

@@ -213,8 +213,63 @@ const gsmArenaDatabase = [
       storage: "128/256/512GB",
       os: "Android 13, Nothing OS 2.0"
     }
+  },
+  {
+    id: "samsung-galaxy-s22-ultra",
+    name: "Samsung Galaxy S22 Ultra",
+    image: "https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s22-ultra-5g.jpg",
+    brand: "Samsung",
+    specs: {
+      display: "6.8 inches, 1440 x 3088 pixels, Dynamic AMOLED 2X",
+      battery: "5000 mAh",
+      ram: "8/12 GB",
+      camera: "108 MP",
+      processor: "Exynos 2200 / Qualcomm Snapdragon 8 Gen 1",
+      storage: "128/256/512GB/1TB",
+      os: "Android 12, One UI 4.1"
+    }
+  },
+  {
+    id: "samsung-galaxy-s22-plus",
+    name: "Samsung Galaxy S22+",
+    image: "https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s22-plus-5g.jpg",
+    brand: "Samsung",
+    specs: {
+      display: "6.6 inches, 1080 x 2340 pixels, Dynamic AMOLED 2X",
+      battery: "4500 mAh",
+      ram: "8 GB",
+      camera: "50 MP",
+      processor: "Exynos 2200 / Qualcomm Snapdragon 8 Gen 1",
+      storage: "128/256GB",
+      os: "Android 12, One UI 4.1"
+    }
+  },
+  {
+    id: "samsung-galaxy-s22",
+    name: "Samsung Galaxy S22",
+    image: "https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s22-5g.jpg",
+    brand: "Samsung",
+    specs: {
+      display: "6.1 inches, 1080 x 2340 pixels, Dynamic AMOLED 2X",
+      battery: "3700 mAh",
+      ram: "8 GB",
+      camera: "50 MP",
+      processor: "Exynos 2200 / Qualcomm Snapdragon 8 Gen 1",
+      storage: "128/256GB",
+      os: "Android 12, One UI 4.1"
+    }
   }
 ];
+
+// This returns the currently trending phones (would be dynamic in a real API)
+export const getTrendingSmartphones = () => {
+  return [
+    gsmArenaDatabase.find(phone => phone.id === "samsung-galaxy-s23-ultra"),
+    gsmArenaDatabase.find(phone => phone.id === "iphone-14-pro"),
+    gsmArenaDatabase.find(phone => phone.id === "oneplus-12"),
+    gsmArenaDatabase.find(phone => phone.id === "google-pixel-7-pro")
+  ].filter(phone => phone !== undefined);
+};
 
 export const searchSmartphones = (query: string) => {
   // Convert query to lowercase for case-insensitive search
@@ -225,17 +280,19 @@ export const searchSmartphones = (query: string) => {
     setTimeout(() => {
       // Search in name, brand and specs
       const results = gsmArenaDatabase.filter(phone => {
-        return (
-          phone.name.toLowerCase().includes(searchTerm) || 
-          phone.brand.toLowerCase().includes(searchTerm) ||
-          Object.values(phone.specs).some(spec => 
-            typeof spec === 'string' && spec.toLowerCase().includes(searchTerm)
-          )
+        const nameMatch = phone.name.toLowerCase().includes(searchTerm);
+        const brandMatch = phone.brand.toLowerCase().includes(searchTerm);
+        
+        // Search in all spec values
+        const specMatch = Object.values(phone.specs).some(spec => 
+          typeof spec === 'string' && spec.toLowerCase().includes(searchTerm)
         );
+        
+        return nameMatch || brandMatch || specMatch;
       });
       
       resolve(results);
-    }, 1500);
+    }, 1000);
   });
 };
 
@@ -245,11 +302,12 @@ export const getSmartphoneById = (id: string) => {
     setTimeout(() => {
       const phone = gsmArenaDatabase.find(phone => phone.id === id) || null;
       resolve(phone);
-    }, 1000);
+    }, 500);
   });
 };
 
 export default {
   searchSmartphones,
-  getSmartphoneById
+  getSmartphoneById,
+  getTrendingSmartphones
 };

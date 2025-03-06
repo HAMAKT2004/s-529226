@@ -1,10 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useCompare } from "@/context/CompareContext";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { Trash2, Heart } from "lucide-react";
+import { Trash2, Heart, Loader } from "lucide-react";
 import SearchService from "@/services/SearchService";
 
 const FavoriteProducts = () => {
@@ -12,35 +12,29 @@ const FavoriteProducts = () => {
   const [expandedProducts, setExpandedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const loadProductDetails = async () => {
-    if (expandedProducts.length > 0) {
-      // Products are already loaded
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const detailedProducts = await Promise.all(
-        favorites.map(async (fav) => {
-          const product = await SearchService.getSmartphoneById(fav.id);
-          return product;
-        })
-      );
+  useEffect(() => {
+    const loadProductDetails = async () => {
+      if (favorites.length === 0) return;
       
-      setExpandedProducts(detailedProducts.filter(p => p !== null));
-    } catch (error) {
-      console.error("Error loading favorite products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setLoading(true);
+      try {
+        const detailedProducts = await Promise.all(
+          favorites.map(async (fav) => {
+            const product = await SearchService.getSmartphoneById(fav.id);
+            return product;
+          })
+        );
+        
+        setExpandedProducts(detailedProducts.filter(p => p !== null));
+      } catch (error) {
+        console.error("Error loading favorite products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Load product details on component mount
-  useState(() => {
-    if (favorites.length > 0) {
-      loadProductDetails();
-    }
-  });
+    loadProductDetails();
+  }, [favorites]);
 
   const clearAllFavorites = () => {
     favorites.forEach(fav => removeFromFavorites(fav.id));
@@ -78,7 +72,7 @@ const FavoriteProducts = () => {
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {favorites.map((product, index) => (
+          {favorites.map((_, index) => (
             <div key={index} className="animate-pulse">
               <div className="bg-muted rounded-lg h-[300px]"></div>
             </div>

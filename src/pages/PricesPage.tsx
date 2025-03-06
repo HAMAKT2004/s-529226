@@ -8,45 +8,102 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ExternalLink, ArrowUpDown, Loader2 } from 'lucide-react';
+import SearchService from '@/services/SearchService';
 
-// Mock data for now - Updated for Indian retailers and prices in ₹
+// Price data for products with proper links to Indian e-commerce sites
 const mockPricesData = {
   'iphone-14-pro': {
-    name: 'iPhone 14 Pro',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-14-pro.jpg',
     prices: [
-      { retailer: 'Amazon India', price: 119999, url: 'https://www.amazon.in' },
-      { retailer: 'Flipkart', price: 122999, url: 'https://www.flipkart.com' },
-      { retailer: 'Croma', price: 124999, url: 'https://www.croma.com' }
+      { retailer: 'Amazon India', price: 119999, url: 'https://www.amazon.in/s?k=iphone+14+pro' },
+      { retailer: 'Flipkart', price: 122999, url: 'https://www.flipkart.com/search?q=iphone+14+pro' },
+      { retailer: 'Croma', price: 124999, url: 'https://www.croma.com/searchB?q=iphone+14+pro' }
     ]
   },
   'samsung-galaxy-s23-ultra': {
-    name: 'Samsung Galaxy S23 Ultra',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s23-ultra-5g.jpg',
     prices: [
-      { retailer: 'Amazon India', price: 124999, url: 'https://www.amazon.in' },
-      { retailer: 'Flipkart', price: 129999, url: 'https://www.flipkart.com' },
-      { retailer: 'Croma', price: 126999, url: 'https://www.croma.com' }
+      { retailer: 'Amazon India', price: 124999, url: 'https://www.amazon.in/s?k=samsung+galaxy+s23+ultra' },
+      { retailer: 'Flipkart', price: 129999, url: 'https://www.flipkart.com/search?q=samsung+galaxy+s23+ultra' },
+      { retailer: 'Croma', price: 126999, url: 'https://www.croma.com/searchB?q=samsung+galaxy+s23+ultra' }
     ]
   },
   'google-pixel-7-pro': {
-    name: 'Google Pixel 7 Pro',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel7-pro-new.jpg',
     prices: [
-      { retailer: 'Amazon India', price: 79999, url: 'https://www.amazon.in' },
-      { retailer: 'Flipkart', price: 81999, url: 'https://www.flipkart.com' },
-      { retailer: 'Croma', price: 84999, url: 'https://www.croma.com' }
+      { retailer: 'Amazon India', price: 79999, url: 'https://www.amazon.in/s?k=google+pixel+7+pro' },
+      { retailer: 'Flipkart', price: 81999, url: 'https://www.flipkart.com/search?q=google+pixel+7+pro' },
+      { retailer: 'Croma', price: 84999, url: 'https://www.croma.com/searchB?q=google+pixel+7+pro' }
     ]
   },
   'xiaomi-13-pro': {
-    name: 'Xiaomi 13 Pro',
-    image: 'https://fdn2.gsmarena.com/vv/bigpic/xiaomi-13-pro.jpg',
     prices: [
-      { retailer: 'Amazon India', price: 69999, url: 'https://www.amazon.in' },
-      { retailer: 'Flipkart', price: 72999, url: 'https://www.flipkart.com' },
-      { retailer: 'Croma', price: 74999, url: 'https://www.croma.com' }
+      { retailer: 'Amazon India', price: 69999, url: 'https://www.amazon.in/s?k=xiaomi+13+pro' },
+      { retailer: 'Flipkart', price: 72999, url: 'https://www.flipkart.com/search?q=xiaomi+13+pro' },
+      { retailer: 'Croma', price: 74999, url: 'https://www.croma.com/searchB?q=xiaomi+13+pro' }
+    ]
+  },
+  'oneplus-12': {
+    prices: [
+      { retailer: 'Amazon India', price: 64999, url: 'https://www.amazon.in/s?k=oneplus+12' },
+      { retailer: 'Flipkart', price: 62999, url: 'https://www.flipkart.com/search?q=oneplus+12' },
+      { retailer: 'Croma', price: 65999, url: 'https://www.croma.com/searchB?q=oneplus+12' }
+    ]
+  },
+  'realme-gt-5-pro': {
+    prices: [
+      { retailer: 'Amazon India', price: 52999, url: 'https://www.amazon.in/s?k=realme+gt+5+pro' },
+      { retailer: 'Flipkart', price: 51999, url: 'https://www.flipkart.com/search?q=realme+gt+5+pro' },
+      { retailer: 'Croma', price: 53999, url: 'https://www.croma.com/searchB?q=realme+gt+5+pro' }
+    ]
+  },
+  'samsung-galaxy-s22-ultra': {
+    prices: [
+      { retailer: 'Amazon India', price: 99999, url: 'https://www.amazon.in/s?k=samsung+galaxy+s22+ultra' },
+      { retailer: 'Flipkart', price: 101999, url: 'https://www.flipkart.com/search?q=samsung+galaxy+s22+ultra' },
+      { retailer: 'Croma', price: 104999, url: 'https://www.croma.com/searchB?q=samsung+galaxy+s22+ultra' }
+    ]
+  },
+  'samsung-galaxy-s22-plus': {
+    prices: [
+      { retailer: 'Amazon India', price: 84999, url: 'https://www.amazon.in/s?k=samsung+galaxy+s22+plus' },
+      { retailer: 'Flipkart', price: 85999, url: 'https://www.flipkart.com/search?q=samsung+galaxy+s22+plus' },
+      { retailer: 'Croma', price: 87999, url: 'https://www.croma.com/searchB?q=samsung+galaxy+s22+plus' }
+    ]
+  },
+  'samsung-galaxy-s22': {
+    prices: [
+      { retailer: 'Amazon India', price: 69999, url: 'https://www.amazon.in/s?k=samsung+galaxy+s22' },
+      { retailer: 'Flipkart', price: 70999, url: 'https://www.flipkart.com/search?q=samsung+galaxy+s22' },
+      { retailer: 'Croma', price: 71999, url: 'https://www.croma.com/searchB?q=samsung+galaxy+s22' }
     ]
   }
+};
+
+// Generate fallback price data for any phone
+const generateFallbackPrices = (productId: string, productName: string) => {
+  // Base price between 30,000 and 120,000
+  const basePrice = Math.floor(Math.random() * (120000 - 30000) + 30000);
+  
+  // Format the product name for URLs
+  const formattedName = productName.toLowerCase().replace(/\s+/g, '+');
+  
+  return {
+    prices: [
+      { 
+        retailer: 'Amazon India', 
+        price: basePrice, 
+        url: `https://www.amazon.in/s?k=${formattedName}` 
+      },
+      { 
+        retailer: 'Flipkart', 
+        price: basePrice + Math.floor(Math.random() * 3000), 
+        url: `https://www.flipkart.com/search?q=${formattedName}` 
+      },
+      { 
+        retailer: 'Croma', 
+        price: basePrice + Math.floor(Math.random() * 5000), 
+        url: `https://www.croma.com/searchB?q=${formattedName}` 
+      }
+    ]
+  };
 };
 
 const PricesPage = () => {
@@ -55,29 +112,53 @@ const PricesPage = () => {
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [productData, setProductData] = useState<any>(null);
+  const [priceData, setPriceData] = useState<any>(null);
 
   useEffect(() => {
-    // Simulate API fetch
-    setTimeout(() => {
-      if (id && mockPricesData[id as keyof typeof mockPricesData]) {
-        setProductData(mockPricesData[id as keyof typeof mockPricesData]);
-      } else {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Fetch the product details
+        if (id) {
+          const productDetails = await SearchService.getSmartphoneById(id);
+          
+          if (productDetails) {
+            setProductData(productDetails);
+            
+            // Get price data from our mock database or generate fallback
+            const prices = mockPricesData[id as keyof typeof mockPricesData] || 
+                          generateFallbackPrices(id, productDetails.name);
+            
+            setPriceData(prices);
+          } else {
+            toast({
+              title: "Product not found",
+              description: "We couldn't find information for this product.",
+              variant: "destructive"
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
         toast({
-          title: "Product not found",
-          description: "We couldn't find price information for this product.",
+          title: "Error",
+          description: "Something went wrong while fetching the data.",
           variant: "destructive"
         });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 1000);
+    };
+
+    fetchData();
   }, [id, toast]);
 
   const toggleSortOrder = () => {
     setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
   };
 
-  const sortedPrices = productData?.prices
-    ? [...productData.prices].sort((a, b) => {
+  const sortedPrices = priceData?.prices
+    ? [...priceData.prices].sort((a, b) => {
         return sortOrder === 'asc' 
           ? a.price - b.price 
           : b.price - a.price;
@@ -121,6 +202,7 @@ const PricesPage = () => {
                       />
                     </div>
                     <h1 className="text-2xl font-bold">{productData.name}</h1>
+                    <p className="text-muted-foreground">{productData.brand}</p>
                   </CardContent>
                 </Card>
               </div>

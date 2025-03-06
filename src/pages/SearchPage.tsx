@@ -24,7 +24,7 @@ const SearchPage: React.FC = () => {
     if (initialQuery) {
       handleSearch();
     }
-  }, []);
+  }, [initialQuery]);
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -42,8 +42,9 @@ const SearchPage: React.FC = () => {
     setShowFavorites(false);
 
     try {
-      // Use our search service instead of the mock data
+      // Use our search service to find smartphones
       const searchResults = await SearchService.searchSmartphones(searchQuery);
+      console.log("Search results:", searchResults);
       setResults(searchResults);
       
       if (searchResults.length === 0) {
@@ -51,6 +52,11 @@ const SearchPage: React.FC = () => {
           title: "No results found",
           description: "Try searching for another term or check the spelling.",
           variant: "destructive",
+        });
+      } else {
+        toast({
+          title: `Found ${searchResults.length} results`,
+          description: "Showing search results for your query.",
         });
       }
     } catch (error) {
@@ -79,7 +85,7 @@ const SearchPage: React.FC = () => {
             <div className="flex-1">
               <Input
                 type="text"
-                placeholder="Search for smartphones (e.g., iPhone 14, Samsung S23, Snapdragon 8 Gen)"
+                placeholder="Search for smartphones (e.g., iPhone 14, Samsung S22, Snapdragon 8 Gen)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-12"
@@ -142,7 +148,7 @@ const SearchPage: React.FC = () => {
             <Info className="h-12 w-12 text-muted-foreground mb-4" />
             <h2 className="text-xl font-medium">Search for Smartphones</h2>
             <p className="text-muted-foreground mt-2 max-w-lg">
-              Enter a smartphone model, brand, or feature to get started. You can search for things like "iPhone", "Samsung", "Snapdragon", or "50MP camera".
+              Enter a smartphone model, brand, or feature to get started. Try searching for "S22", "iPhone", "Samsung", "Snapdragon", or "50MP camera".
             </p>
           </div>
         )}
