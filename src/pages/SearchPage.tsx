@@ -1,107 +1,15 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Loader } from "lucide-react";
+import { Search, Loader, Info } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-
-// Temporary mock data - would be fetched from API in a real app
-const mockSearchResults = {
-  "iphone": [
-    {
-      id: "iphone-14-pro",
-      name: "iPhone 14 Pro",
-      image: "https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-14-pro.jpg",
-      brand: "Apple",
-      specs: {
-        display: "6.1 inches",
-        battery: "3200 mAh",
-        ram: "6 GB",
-        camera: "48 MP"
-      }
-    },
-    {
-      id: "iphone-14",
-      name: "iPhone 14",
-      image: "https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-14.jpg",
-      brand: "Apple",
-      specs: {
-        display: "6.1 inches",
-        battery: "3200 mAh",
-        ram: "6 GB",
-        camera: "12 MP"
-      }
-    },
-    {
-      id: "iphone-13-pro",
-      name: "iPhone 13 Pro",
-      image: "https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-13-pro.jpg",
-      brand: "Apple",
-      specs: {
-        display: "6.1 inches",
-        battery: "3095 mAh",
-        ram: "6 GB",
-        camera: "12 MP"
-      }
-    }
-  ],
-  "samsung": [
-    {
-      id: "samsung-galaxy-s23-ultra",
-      name: "Samsung Galaxy S23 Ultra",
-      image: "https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s23-ultra-5g.jpg",
-      brand: "Samsung",
-      specs: {
-        display: "6.8 inches",
-        battery: "5000 mAh",
-        ram: "12 GB",
-        camera: "200 MP"
-      }
-    },
-    {
-      id: "samsung-galaxy-s23",
-      name: "Samsung Galaxy S23",
-      image: "https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s23-5g.jpg",
-      brand: "Samsung",
-      specs: {
-        display: "6.1 inches",
-        battery: "3900 mAh",
-        ram: "8 GB",
-        camera: "50 MP"
-      }
-    }
-  ],
-  "pixel": [
-    {
-      id: "google-pixel-7-pro",
-      name: "Google Pixel 7 Pro",
-      image: "https://fdn2.gsmarena.com/vv/bigpic/google-pixel7-pro-new.jpg",
-      brand: "Google",
-      specs: {
-        display: "6.7 inches",
-        battery: "5000 mAh",
-        ram: "12 GB",
-        camera: "50 MP"
-      }
-    },
-    {
-      id: "google-pixel-7",
-      name: "Google Pixel 7",
-      image: "https://fdn2.gsmarena.com/vv/bigpic/google-pixel7-new.jpg",
-      brand: "Google",
-      specs: {
-        display: "6.3 inches",
-        battery: "4355 mAh",
-        ram: "8 GB",
-        camera: "50 MP"
-      }
-    }
-  ]
-};
+import SearchService from "@/services/SearchService";
+import FavoriteProducts from "@/components/FavoriteProducts";
 
 const SearchPage: React.FC = () => {
   const { toast } = useToast();
@@ -110,8 +18,9 @@ const SearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [showFavorites, setShowFavorites] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialQuery) {
       handleSearch();
     }
@@ -130,32 +39,34 @@ const SearchPage: React.FC = () => {
 
     setLoading(true);
     setSearchParams({ q: searchQuery });
+    setShowFavorites(false);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      let searchResults: any[] = [];
-      
-      // Check if the search term matches any of our mock data
-      Object.keys(mockSearchResults).forEach(key => {
-        if (searchQuery.toLowerCase().includes(key)) {
-          searchResults = [
-            ...searchResults,
-            ...mockSearchResults[key as keyof typeof mockSearchResults]
-          ];
-        }
-      });
-      
+    try {
+      // Use our search service instead of the mock data
+      const searchResults = await SearchService.searchSmartphones(searchQuery);
       setResults(searchResults);
-      setLoading(false);
       
       if (searchResults.length === 0) {
         toast({
           title: "No results found",
-          description: "Try searching for 'iphone', 'samsung', or 'pixel'",
+          description: "Try searching for another term or check the spelling.",
           variant: "destructive",
         });
       }
-    }, 1000);
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "Search failed",
+        description: "An error occurred while searching. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleFavorites = () => {
+    setShowFavorites(!showFavorites);
   };
 
   return (
@@ -168,7 +79,7 @@ const SearchPage: React.FC = () => {
             <div className="flex-1">
               <Input
                 type="text"
-                placeholder="Enter smartphone name (e.g., iPhone 14, Samsung Galaxy S23)"
+                placeholder="Search for smartphones (e.g., iPhone 14, Samsung S23, Snapdragon 8 Gen)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-12"
@@ -179,12 +90,24 @@ const SearchPage: React.FC = () => {
               Search
             </Button>
           </form>
-          <p className="text-sm text-muted-foreground mt-2">
-            Try searching for "iphone", "samsung", or "pixel" to see results.
-          </p>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-sm text-muted-foreground">
+              Search for any smartphone model, brand, or feature
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={toggleFavorites}
+              className="ml-auto"
+            >
+              {showFavorites ? "Hide Favorites" : "Show Favorites"}
+            </Button>
+          </div>
         </div>
 
-        {loading ? (
+        {showFavorites ? (
+          <FavoriteProducts />
+        ) : loading ? (
           <div className="flex justify-center my-12">
             <Loader className="h-8 w-8 animate-spin text-primary" />
           </div>
@@ -192,18 +115,20 @@ const SearchPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
-            {results.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
+            <h2 className="text-xl font-semibold mb-6">Search Results ({results.length})</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {results.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         ) : initialQuery ? (
           <div className="text-center my-12 py-8 bg-muted rounded-lg">
@@ -212,7 +137,15 @@ const SearchPage: React.FC = () => {
               Try searching for another term or check the spelling.
             </p>
           </div>
-        ) : null}
+        ) : (
+          <div className="text-center my-12 py-8 bg-muted rounded-lg flex flex-col items-center">
+            <Info className="h-12 w-12 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-medium">Search for Smartphones</h2>
+            <p className="text-muted-foreground mt-2 max-w-lg">
+              Enter a smartphone model, brand, or feature to get started. You can search for things like "iPhone", "Samsung", "Snapdragon", or "50MP camera".
+            </p>
+          </div>
+        )}
       </div>
     </MainLayout>
   );

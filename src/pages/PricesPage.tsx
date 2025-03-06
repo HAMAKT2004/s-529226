@@ -9,42 +9,42 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ExternalLink, ArrowUpDown, Loader2 } from 'lucide-react';
 
-// Mock data for now
+// Mock data for now - Updated for Indian retailers and prices in ₹
 const mockPricesData = {
   'iphone-14-pro': {
     name: 'iPhone 14 Pro',
     image: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-14-pro.jpg',
     prices: [
-      { retailer: 'Amazon', price: 999, url: 'https://www.amazon.com' },
-      { retailer: 'Best Buy', price: 1029, url: 'https://www.bestbuy.com' },
-      { retailer: 'Apple Store', price: 999, url: 'https://www.apple.com' }
+      { retailer: 'Amazon India', price: 119999, url: 'https://www.amazon.in' },
+      { retailer: 'Flipkart', price: 122999, url: 'https://www.flipkart.com' },
+      { retailer: 'Croma', price: 124999, url: 'https://www.croma.com' }
     ]
   },
   'samsung-galaxy-s23-ultra': {
     name: 'Samsung Galaxy S23 Ultra',
     image: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s23-ultra-5g.jpg',
     prices: [
-      { retailer: 'Amazon', price: 1149, url: 'https://www.amazon.com' },
-      { retailer: 'Best Buy', price: 1199, url: 'https://www.bestbuy.com' },
-      { retailer: 'Samsung', price: 1199, url: 'https://www.samsung.com' }
+      { retailer: 'Amazon India', price: 124999, url: 'https://www.amazon.in' },
+      { retailer: 'Flipkart', price: 129999, url: 'https://www.flipkart.com' },
+      { retailer: 'Croma', price: 126999, url: 'https://www.croma.com' }
     ]
   },
   'google-pixel-7-pro': {
     name: 'Google Pixel 7 Pro',
     image: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel7-pro-new.jpg',
     prices: [
-      { retailer: 'Amazon', price: 849, url: 'https://www.amazon.com' },
-      { retailer: 'Best Buy', price: 899, url: 'https://www.bestbuy.com' },
-      { retailer: 'Google Store', price: 899, url: 'https://store.google.com' }
+      { retailer: 'Amazon India', price: 79999, url: 'https://www.amazon.in' },
+      { retailer: 'Flipkart', price: 81999, url: 'https://www.flipkart.com' },
+      { retailer: 'Croma', price: 84999, url: 'https://www.croma.com' }
     ]
   },
   'xiaomi-13-pro': {
     name: 'Xiaomi 13 Pro',
     image: 'https://fdn2.gsmarena.com/vv/bigpic/xiaomi-13-pro.jpg',
     prices: [
-      { retailer: 'Amazon', price: 779, url: 'https://www.amazon.com' },
-      { retailer: 'AliExpress', price: 799, url: 'https://www.aliexpress.com' },
-      { retailer: 'Mi Store', price: 799, url: 'https://www.mi.com' }
+      { retailer: 'Amazon India', price: 69999, url: 'https://www.amazon.in' },
+      { retailer: 'Flipkart', price: 72999, url: 'https://www.flipkart.com' },
+      { retailer: 'Croma', price: 74999, url: 'https://www.croma.com' }
     ]
   }
 };
@@ -84,6 +84,15 @@ const PricesPage = () => {
       })
     : [];
 
+  // Function to format price in Indian Rupees
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
   return (
     <MainLayout>
       <div className="container py-8">
@@ -122,7 +131,7 @@ const PricesPage = () => {
                     <div className="flex justify-between items-center">
                       <div>
                         <CardTitle>Price Comparison</CardTitle>
-                        <CardDescription>Compare prices from different retailers</CardDescription>
+                        <CardDescription>Compare prices from different Indian retailers</CardDescription>
                       </div>
                       <Button 
                         variant="outline" 
@@ -142,7 +151,7 @@ const PricesPage = () => {
                           <div className="flex justify-between items-center">
                             <div>
                               <div className="font-medium">{price.retailer}</div>
-                              <div className="text-2xl font-bold">${price.price}</div>
+                              <div className="text-2xl font-bold">{formatPrice(price.price)}</div>
                               {index === 0 && sortOrder === 'asc' && (
                                 <Badge variant="secondary" className="mt-1">Best Price</Badge>
                               )}

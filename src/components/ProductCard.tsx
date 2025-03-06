@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { useCompare } from "@/context/CompareContext";
-import { Phone, Plus, Check } from "lucide-react";
+import { Phone, Plus, Check, Heart } from "lucide-react";
 
 interface ProductCardProps {
   product: {
@@ -18,25 +18,50 @@ interface ProductCardProps {
       battery: string;
       ram: string;
       camera: string;
+      processor?: string;
+      storage?: string;
+      os?: string;
     };
   };
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  const { addToCompare, isInCompareList } = useCompare();
+  const { addToCompare, isInCompareList, addToFavorites, removeFromFavorites, isInFavorites } = useCompare();
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleAddToCompare = () => {
     addToCompare({
       id: product.id,
       name: product.name,
-      image: product.image
+      image: product.image,
+      brand: product.brand
     });
     
     toast({
       title: "Added to compare list",
       description: `${product.name} has been added to your compare list.`,
     });
+  };
+
+  const toggleFavorite = () => {
+    if (isInFavorites(product.id)) {
+      removeFromFavorites(product.id);
+      toast({
+        title: "Removed from favorites",
+        description: `${product.name} has been removed from your favorites.`,
+      });
+    } else {
+      addToFavorites({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        brand: product.brand
+      });
+      toast({
+        title: "Added to favorites",
+        description: `${product.name} has been added to your favorites.`,
+      });
+    }
   };
 
   return (
@@ -63,24 +88,34 @@ const ProductCard = ({ product }: ProductCardProps) => {
               <h3 className="font-medium text-lg hover:text-primary transition-colors">{product.name}</h3>
             </Link>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleAddToCompare}
-            disabled={isInCompareList(product.id)}
-          >
-            {isInCompareList(product.id) ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <Plus className="h-4 w-4" />
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className={isInFavorites(product.id) ? "text-red-500 hover:text-red-600" : ""}
+              onClick={toggleFavorite}
+            >
+              <Heart className={`h-4 w-4 ${isInFavorites(product.id) ? "fill-current" : ""}`} />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleAddToCompare}
+              disabled={isInCompareList(product.id)}
+            >
+              {isInCompareList(product.id) ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
         
         <div className="grid grid-cols-2 gap-2 mt-4">
           <div className="text-xs">
             <span className="text-muted-foreground">Display:</span>
-            <div>{product.specs.display}</div>
+            <div>{product.specs.display.split(',')[0]}</div>
           </div>
           <div className="text-xs">
             <span className="text-muted-foreground">Battery:</span>

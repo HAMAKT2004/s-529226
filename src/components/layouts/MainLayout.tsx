@@ -11,6 +11,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { useCompare } from "@/context/CompareContext";
+import { Badge } from "@/components/ui/badge";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const { compareList } = useCompare();
+  const { compareList, favorites } = useCompare();
 
   const routes = [
     { path: "/", label: "Home" },
@@ -52,14 +53,28 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </nav>
 
           <div className="flex items-center gap-4">
-            {compareList.length > 0 && (
-              <Link to="/compare">
-                <Button size="sm" variant="outline" className="hidden md:flex">
-                  <Phone className="mr-2 h-4 w-4" />
-                  Compare ({compareList.length})
+            {favorites.length > 0 && (
+              <Link to="/search?show=favorites" className="hidden md:flex">
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Heart className="h-4 w-4" fill="currentColor" />
+                  <Badge variant="secondary" className="h-5 min-w-5 flex items-center justify-center rounded-full p-0">
+                    {favorites.length}
+                  </Badge>
                 </Button>
               </Link>
             )}
+            
+            {compareList.length > 0 && (
+              <Link to="/compare" className="hidden md:flex">
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Phone className="h-4 w-4" />
+                  <Badge variant="secondary" className="h-5 min-w-5 flex items-center justify-center rounded-full p-0">
+                    {compareList.length}
+                  </Badge>
+                </Button>
+              </Link>
+            )}
+            
             <ThemeToggle />
 
             {/* Mobile menu button */}
@@ -86,6 +101,23 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                       </Link>
                     </SheetClose>
                   ))}
+                  
+                  {/* Mobile Favorites button */}
+                  {favorites.length > 0 && (
+                    <SheetClose asChild>
+                      <Link
+                        to="/search?show=favorites"
+                        className="text-lg flex items-center justify-between p-2 rounded-md hover:bg-muted"
+                        onClick={() => setIsNavOpen(false)}
+                      >
+                        <div className="flex items-center">
+                          <Heart className="mr-2 h-5 w-5" />
+                          Favorites
+                        </div>
+                        <Badge>{favorites.length}</Badge>
+                      </Link>
+                    </SheetClose>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
@@ -104,7 +136,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               </h3>
               <p className="text-muted-foreground">
                 Find the best smartphone at the best price. Compare specifications and
-                prices from top retailers.
+                prices from top Indian retailers.
               </p>
             </div>
             <div>
@@ -120,6 +152,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <Link
+                    to="/search?show=favorites"
+                    className="text-muted-foreground hover:text-primary transition-colors flex items-center"
+                  >
+                    <Heart className="mr-1 h-3.5 w-3.5" /> Favorites
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
