@@ -3,30 +3,18 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useCompare } from "@/context/CompareContext";
 import { Phone, Plus, Check, Heart } from "lucide-react";
+import type { Smartphone } from "@/services/SearchService";
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    image: string;
-    brand: string;
-    specs: {
-      display: string;
-      battery: string;
-      ram: string;
-      camera: string;
-      processor?: string;
-      storage?: string;
-      os?: string;
-    };
-  };
+  product: Smartphone;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCompare, isInCompareList, addToFavorites, removeFromFavorites, isInFavorites } = useCompare();
+  const { toast } = useToast();
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleAddToCompare = () => {
@@ -113,22 +101,30 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         
         <div className="grid grid-cols-2 gap-2 mt-4">
-          <div className="text-xs">
-            <span className="text-muted-foreground">Display:</span>
-            <div>{product.specs.display.split(',')[0]}</div>
-          </div>
-          <div className="text-xs">
-            <span className="text-muted-foreground">Battery:</span>
-            <div>{product.specs.battery}</div>
-          </div>
-          <div className="text-xs">
-            <span className="text-muted-foreground">RAM:</span>
-            <div>{product.specs.ram}</div>
-          </div>
-          <div className="text-xs">
-            <span className="text-muted-foreground">Camera:</span>
-            <div>{product.specs.camera}</div>
-          </div>
+          {product.specs.display && (
+            <div className="text-xs">
+              <span className="text-muted-foreground">Display:</span>
+              <div>{product.specs.display.split(',')[0]}</div>
+            </div>
+          )}
+          {product.specs.battery && (
+            <div className="text-xs">
+              <span className="text-muted-foreground">Battery:</span>
+              <div>{product.specs.battery}</div>
+            </div>
+          )}
+          {product.specs.ram && (
+            <div className="text-xs">
+              <span className="text-muted-foreground">RAM:</span>
+              <div>{product.specs.ram}</div>
+            </div>
+          )}
+          {product.specs.camera && (
+            <div className="text-xs">
+              <span className="text-muted-foreground">Camera:</span>
+              <div>{product.specs.camera}</div>
+            </div>
+          )}
         </div>
         
         <div className="flex gap-2 mt-4">

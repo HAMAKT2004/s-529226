@@ -8,8 +8,9 @@ import { Search, Loader, Info } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import SearchService from "@/services/SearchService";
+import { searchSmartphones } from "@/services/SearchService";
 import FavoriteProducts from "@/components/FavoriteProducts";
+import type { Smartphone } from "@/services/SearchService";
 
 const SearchPage: React.FC = () => {
   const { toast } = useToast();
@@ -17,7 +18,7 @@ const SearchPage: React.FC = () => {
   const initialQuery = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<Smartphone[]>([]);
   const [showFavorites, setShowFavorites] = useState(false);
 
   useEffect(() => {
@@ -42,8 +43,8 @@ const SearchPage: React.FC = () => {
     setShowFavorites(false);
 
     try {
-      // Use our search service to find smartphones
-      const searchResults = await SearchService.searchSmartphones(searchQuery);
+      // Use our search service to find smartphones from GSMArena
+      const searchResults = await searchSmartphones(searchQuery);
       console.log("Search results:", searchResults);
       setResults(searchResults);
       
@@ -56,14 +57,14 @@ const SearchPage: React.FC = () => {
       } else {
         toast({
           title: `Found ${searchResults.length} results`,
-          description: "Showing search results for your query.",
+          description: "Showing search results from GSMArena.",
         });
       }
     } catch (error) {
       console.error("Search error:", error);
       toast({
         title: "Search failed",
-        description: "An error occurred while searching. Please try again.",
+        description: "An error occurred while searching GSMArena. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -85,7 +86,7 @@ const SearchPage: React.FC = () => {
             <div className="flex-1">
               <Input
                 type="text"
-                placeholder="Search for smartphones (e.g., iPhone 14, Samsung S22, Snapdragon 8 Gen)"
+                placeholder="Search for smartphones on GSMArena (e.g., iPhone 16, Samsung S24, Pixel 9)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-12"
@@ -93,12 +94,12 @@ const SearchPage: React.FC = () => {
             </div>
             <Button type="submit" className="h-12" disabled={loading}>
               {loading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-              Search
+              Search GSMArena
             </Button>
           </form>
           <div className="flex items-center justify-between mt-2">
             <p className="text-sm text-muted-foreground">
-              Search for any smartphone model, brand, or feature
+              Search for any smartphone model, brand, or feature directly from GSMArena
             </p>
             <Button 
               variant="outline" 
@@ -148,7 +149,7 @@ const SearchPage: React.FC = () => {
             <Info className="h-12 w-12 text-muted-foreground mb-4" />
             <h2 className="text-xl font-medium">Search for Smartphones</h2>
             <p className="text-muted-foreground mt-2 max-w-lg">
-              Enter a smartphone model, brand, or feature to get started. Try searching for "S22", "iPhone", "Samsung", "Snapdragon", or "50MP camera".
+              Enter a smartphone model, brand, or feature to get started. Try searching for "S24", "iPhone", "Samsung", "Snapdragon", or "50MP camera".
             </p>
           </div>
         )}
