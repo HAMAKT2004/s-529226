@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,30 @@ import { useAuth } from "@/context/AuthContext";
 import { ShoppingBag, LogIn } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 const LoginPage = () => {
   const { signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignInWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithGoogle();
+      // No need to navigate here as the redirect will happen automatically
+    } catch (error: any) {
+      console.error("Google sign-in error:", error);
+      toast({
+        title: "Login failed",
+        description: "Could not sign in with Google. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleContinueWithoutLogin = () => {
     navigate("/");
@@ -40,10 +60,11 @@ const LoginPage = () => {
             <Button
               className="w-full flex items-center justify-center gap-2"
               size="lg"
-              onClick={signInWithGoogle}
+              onClick={handleSignInWithGoogle}
+              disabled={isLoading}
             >
               <LogIn className="h-5 w-5" />
-              Continue with Google
+              {isLoading ? "Connecting..." : "Continue with Google"}
             </Button>
 
             <div className="flex items-center gap-2">
@@ -57,6 +78,7 @@ const LoginPage = () => {
               className="w-full"
               size="lg"
               onClick={handleContinueWithoutLogin}
+              disabled={isLoading}
             >
               Continue without Login
             </Button>

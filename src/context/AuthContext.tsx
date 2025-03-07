@@ -90,26 +90,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      console.log("Starting Google sign-in process...");
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: window.location.origin,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         },
       });
 
       if (error) {
+        console.error("Error during Google sign-in:", error);
         toast({
           title: "Error signing in",
           description: error.message,
           variant: "destructive",
         });
+        throw error;
       }
     } catch (error: any) {
+      console.error("Unexpected error during Google sign-in:", error);
       toast({
         title: "Error signing in",
-        description: error.message,
+        description: error.message || "Failed to sign in with Google",
         variant: "destructive",
       });
+      throw error;
     }
   };
 
