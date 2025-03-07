@@ -3,14 +3,23 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ShoppingBag, Phone, Users, Heart } from "lucide-react";
+import { Menu, X, ShoppingBag, Phone, Users, Heart, LogOut, User } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCompare } from "@/context/CompareContext";
+import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
 
 interface MainLayoutProps {
@@ -21,12 +30,21 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { compareList, favorites } = useCompare();
+  const { user, profile, signOut, isAuthenticated } = useAuth();
 
   const routes = [
     { path: "/", label: "Home" },
     { path: "/search", label: "Find Products" },
     { path: "/compare", label: "Compare" },
   ];
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -77,6 +95,48 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             
             <ThemeToggle />
 
+            {/* User menu */}
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarFallback>
+                        {user?.email ? getInitials(user.email.split('@')[0]) : 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium">{profile?.username || user?.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/favorites" className="cursor-pointer">
+                      <Heart className="mr-2 h-4 w-4" />
+                      <span>Favorites</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/login">
+                  <User className="mr-2 h-4 w-4" />
+                  Login
+                </Link>
+              </Button>
+            )}
+
             {/* Mobile menu button */}
             <Sheet open={isNavOpen} onOpenChange={setIsNavOpen}>
               <SheetTrigger asChild className="md:hidden">
@@ -115,6 +175,31 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                           Favorites
                         </div>
                         <Badge>{favorites.length}</Badge>
+                      </Link>
+                    </SheetClose>
+                  )}
+
+                  {/* Mobile Login/Logout */}
+                  {isAuthenticated ? (
+                    <SheetClose asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={signOut}
+                      >
+                        <LogOut className="mr-2 h-5 w-5" />
+                        Log out
+                      </Button>
+                    </SheetClose>
+                  ) : (
+                    <SheetClose asChild>
+                      <Link
+                        to="/login"
+                        className="text-lg flex items-center p-2 rounded-md hover:bg-muted"
+                        onClick={() => setIsNavOpen(false)}
+                      >
+                        <User className="mr-2 h-5 w-5" />
+                        Login
                       </Link>
                     </SheetClose>
                   )}
