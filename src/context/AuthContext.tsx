@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +9,8 @@ type AuthContextType = {
   profile: any | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 };
@@ -88,22 +88,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithEmail = async (email: string, password: string) => {
     try {
-      console.log("Starting Google sign-in process...");
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        },
+      console.log("Starting email sign-in process...");
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
       if (error) {
-        console.error("Error during Google sign-in:", error);
+        console.error("Error during email sign-in:", error);
         toast({
           title: "Error signing in",
           description: error.message,
@@ -112,10 +106,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
     } catch (error: any) {
-      console.error("Unexpected error during Google sign-in:", error);
+      console.error("Unexpected error during email sign-in:", error);
       toast({
         title: "Error signing in",
-        description: error.message || "Failed to sign in with Google",
+        description: error.message || "Failed to sign in with email",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    try {
+      console.log("Starting email sign-up process...");
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
+      });
+
+      if (error) {
+        console.error("Error during email sign-up:", error);
+        toast({
+          title: "Error signing up",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      } else {
+        toast({
+          title: "Check your email",
+          description: "We've sent you a confirmation link to complete your sign up.",
+        });
+      }
+    } catch (error: any) {
+      console.error("Unexpected error during email sign-up:", error);
+      toast({
+        title: "Error signing up",
+        description: error.message || "Failed to sign up with email",
         variant: "destructive",
       });
       throw error;
@@ -175,7 +205,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         isLoading,
         isAuthenticated,
-        signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
         signOut,
         refreshSession,
       }}

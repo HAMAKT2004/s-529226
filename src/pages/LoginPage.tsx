@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
 import { ShoppingBag, LogIn } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -10,23 +11,35 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 
 const LoginPage = () => {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithEmail, signUpWithEmail } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleSignInWithGoogle = async () => {
-    try {
-      setIsLoading(true);
-      await signInWithGoogle();
-      // No need to navigate here as the redirect will happen automatically
-    } catch (error: any) {
-      console.error("Google sign-in error:", error);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
       toast({
-        title: "Login failed",
-        description: "Could not sign in with Google. Please try again.",
+        title: "Missing information",
+        description: "Please provide both email and password.",
         variant: "destructive",
       });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      if (isSignUp) {
+        await signUpWithEmail(email, password);
+      } else {
+        await signInWithEmail(email, password);
+      }
+    } catch (error: any) {
+      console.error("Authentication error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -56,16 +69,47 @@ const LoginPage = () => {
               Find the best smartphone at the best price
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <Button
-              className="w-full flex items-center justify-center gap-2"
-              size="lg"
-              onClick={handleSignInWithGoogle}
-              disabled={isLoading}
-            >
-              <LogIn className="h-5 w-5" />
-              {isLoading ? "Connecting..." : "Continue with Google"}
-            </Button>
+          <CardContent className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2"
+                size="lg"
+                disabled={isLoading}
+              >
+                <LogIn className="h-5 w-5" />
+                {isLoading ? "Processing..." : isSignUp ? "Sign Up" : "Sign In"}
+              </Button>
+            </form>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-primary hover:underline"
+                disabled={isLoading}
+              >
+                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+              </button>
+            </div>
 
             <div className="flex items-center gap-2">
               <Separator className="flex-1" />
