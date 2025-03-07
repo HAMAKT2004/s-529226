@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useCompare } from '@/context/CompareContext';
-import { Phone, Plus, Check, Heart, Loader } from 'lucide-react';
+import { Phone, Plus, Check, Heart, Loader, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getTrendingSmartphones } from '@/services/SearchService';
 import { useToast } from '@/hooks/use-toast';
