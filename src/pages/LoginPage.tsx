@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { ShoppingBag, Google } from "lucide-react";
+import { ShoppingBag, LogIn } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
@@ -42,7 +42,7 @@ const LoginPage = () => {
               size="lg"
               onClick={signInWithGoogle}
             >
-              <Google className="h-5 w-5" />
+              <LogIn className="h-5 w-5" />
               Continue with Google
             </Button>
 
