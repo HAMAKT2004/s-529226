@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import { useCompare } from "@/context/CompareContext";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { Trash2, Heart, Loader } from "lucide-react";
+import { Trash2, Heart, Loader, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import SearchService from "@/services/SearchService";
 
 const FavoriteProducts = () => {
-  const { favorites, removeFromFavorites } = useCompare();
+  const { favorites, removeFromFavorites, clearFavorites } = useCompare();
   const [expandedProducts, setExpandedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -36,18 +37,17 @@ const FavoriteProducts = () => {
     loadProductDetails();
   }, [favorites]);
 
-  const clearAllFavorites = () => {
-    favorites.forEach(fav => removeFromFavorites(fav.id));
-  };
-
   if (favorites.length === 0) {
     return (
       <div className="text-center my-12 py-8 bg-muted rounded-lg">
         <Heart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
         <h2 className="text-xl font-medium">No Favorite Products</h2>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-2 mb-4">
           Add products to your favorites to see them here.
         </p>
+        <Button asChild size="sm">
+          <Link to="/search">Browse Products</Link>
+        </Button>
       </div>
     );
   }
@@ -59,15 +59,23 @@ const FavoriteProducts = () => {
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Your Favorite Products ({favorites.length})</h2>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={clearAllFavorites}
-          className="text-destructive"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Clear All
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={clearFavorites}
+            className="text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear All
+          </Button>
+          <Button asChild size="sm">
+            <Link to="/favorites">
+              View All Favorites
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -81,7 +89,7 @@ const FavoriteProducts = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {expandedProducts.length > 0 ? (
-            expandedProducts.map((product, index) => (
+            expandedProducts.slice(0, 4).map((product, index) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -92,7 +100,7 @@ const FavoriteProducts = () => {
               </motion.div>
             ))
           ) : (
-            favorites.map((fav, index) => (
+            favorites.slice(0, 4).map((fav, index) => (
               <motion.div
                 key={fav.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -110,13 +118,23 @@ const FavoriteProducts = () => {
                   <p className="text-sm text-muted-foreground">{fav.brand}</p>
                   <div className="mt-4 flex justify-center">
                     <Button asChild size="sm">
-                      <a href={`/product/${fav.id}`}>View Details</a>
+                      <Link to={`/product/${fav.id}`}>View Details</Link>
                     </Button>
                   </div>
                 </div>
               </motion.div>
             ))
           )}
+        </div>
+      )}
+      {favorites.length > 4 && (
+        <div className="mt-6 text-center">
+          <Button asChild variant="outline">
+            <Link to="/favorites">
+              View All {favorites.length} Favorites
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       )}
     </motion.div>

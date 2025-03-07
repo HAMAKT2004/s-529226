@@ -73,18 +73,21 @@ const TrendingPhones = () => {
 
   // Format price in Indian Rupees
   const formatPrice = (id: string) => {
-    // Generate consistent but random-looking prices based on the product ID
-    const priceBase = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100000;
-    const priceWithMargin = 30000 + priceBase;
+    // Generate different prices based on the product ID hash
+    const idHash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const priceBase = (idHash % 50000) + 10000; // Different range for each product
     
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0
-    }).format(priceWithMargin);
+    }).format(priceBase);
   };
 
-  const toggleFavorite = (phone: Smartphone) => {
+  const toggleFavorite = (phone: Smartphone, event: React.MouseEvent) => {
+    event.preventDefault(); // Prevent navigation when clicking the button
+    event.stopPropagation(); // Stop event propagation
+    
     if (isInFavorites(phone.id)) {
       removeFromFavorites(phone.id);
       toast({
@@ -105,7 +108,10 @@ const TrendingPhones = () => {
     }
   };
 
-  const handleAddToCompare = (phone: Smartphone) => {
+  const handleAddToCompare = (phone: Smartphone, event: React.MouseEvent) => {
+    event.preventDefault(); // Prevent navigation when clicking the button
+    event.stopPropagation(); // Stop event propagation
+    
     if (!isInCompareList(phone.id)) {
       addToCompare({
         id: phone.id,
@@ -138,6 +144,7 @@ const TrendingPhones = () => {
               src={phone.image} 
               alt={phone.name}
               className="absolute inset-0 w-full h-full object-contain p-4"
+              loading="lazy"
             />
           </Link>
           <div className="p-4">
@@ -154,14 +161,14 @@ const TrendingPhones = () => {
                   size="sm"
                   variant="outline"
                   className={isInFavorites(phone.id) ? "text-red-500 hover:text-red-600" : ""}
-                  onClick={() => toggleFavorite(phone)}
+                  onClick={(e) => toggleFavorite(phone, e)}
                 >
                   <Heart className={`h-4 w-4 ${isInFavorites(phone.id) ? "fill-current" : ""}`} />
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleAddToCompare(phone)}
+                  onClick={(e) => handleAddToCompare(phone, e)}
                   disabled={isInCompareList(phone.id)}
                 >
                   {isInCompareList(phone.id) ? (
@@ -174,25 +181,25 @@ const TrendingPhones = () => {
             </div>
             
             <div className="grid grid-cols-2 gap-2 mt-4">
-              {phone.specs.display && (
+              {phone.specs?.display && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">Display:</span>
                   <div>{phone.specs.display.split(',')[0]}</div>
                 </div>
               )}
-              {phone.specs.battery && (
+              {phone.specs?.battery && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">Battery:</span>
                   <div>{phone.specs.battery}</div>
                 </div>
               )}
-              {phone.specs.ram && (
+              {phone.specs?.ram && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">RAM:</span>
                   <div>{phone.specs.ram}</div>
                 </div>
               )}
-              {phone.specs.camera && (
+              {phone.specs?.camera && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">Camera:</span>
                   <div>{phone.specs.camera}</div>
@@ -206,7 +213,7 @@ const TrendingPhones = () => {
               </Button>
               <Button asChild size="sm" variant="outline" className="flex-1">
                 <Link to={`/prices/${phone.id}`}>
-                  <Phone className="mr-1 h-4 w-4" />
+                  <ShoppingCart className="mr-1 h-4 w-4" />
                   Prices
                 </Link>
               </Button>

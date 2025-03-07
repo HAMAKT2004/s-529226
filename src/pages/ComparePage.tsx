@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/layouts/MainLayout";
@@ -6,11 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useCompare } from "@/context/CompareContext";
 import { motion } from "framer-motion";
-import { ChevronRight, X, ShoppingCart, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronRight, X, ShoppingCart, AlertCircle, ChevronDown, ChevronUp, Scale, ArrowRight } from "lucide-react";
 import { getSmartphoneById } from "@/services/SearchService";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Group comparison fields for organization
 const comparisonGroups = {
   essential: [
     { key: 'display', label: 'Display' },
@@ -90,7 +88,6 @@ const comparisonGroups = {
   ]
 };
 
-// Helper for price display
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -239,7 +236,6 @@ const ComparePage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* Essential specs always shown */}
                 {comparisonGroups.essential.map((field) => (
                   <TableRow key={field.key}>
                     <TableCell className="font-medium">{field.label}</TableCell>
@@ -256,7 +252,6 @@ const ComparePage = () => {
                   </TableRow>
                 ))}
                 
-                {/* Group headers for expandable sections */}
                 {Object.entries(comparisonGroups)
                   .filter(([key]) => key !== 'essential')
                   .map(([groupKey, fields]) => {
@@ -264,7 +259,6 @@ const ComparePage = () => {
                     
                     return (
                       <React.Fragment key={groupKey}>
-                        {/* Group header row */}
                         <TableRow 
                           className="cursor-pointer hover:bg-muted" 
                           onClick={() => toggleGroup(groupKey)}
@@ -281,7 +275,6 @@ const ComparePage = () => {
                           </TableCell>
                         </TableRow>
                         
-                        {/* Expandable content */}
                         {isExpanded && fields.map((field) => (
                           <TableRow key={field.key}>
                             <TableCell className="font-medium pl-6">
@@ -303,7 +296,6 @@ const ComparePage = () => {
                     );
                   })}
                 
-                {/* Action buttons row */}
                 <TableRow>
                   <TableCell>Actions</TableCell>
                   {compareList.map((product) => (

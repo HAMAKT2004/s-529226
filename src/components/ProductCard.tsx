@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useCompare } from "@/context/CompareContext";
-import { Scale, Heart, ArrowRight } from "lucide-react";
+import { ShoppingCart, Heart, ArrowRight } from "lucide-react";
 import type { Smartphone } from "@/services/SearchService";
 
 interface ProductCardProps {
@@ -17,7 +17,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const { toast } = useToast();
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const handleAddToCompare = () => {
+  const handleAddToCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     addToCompare({
       id: product.id,
       name: product.name,
@@ -31,7 +34,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
     });
   };
 
-  const toggleFavorite = () => {
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (isInFavorites(product.id)) {
       removeFromFavorites(product.id);
       toast({
@@ -92,7 +98,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
               onClick={handleAddToCompare}
               disabled={isInCompareList(product.id)}
             >
-              <Scale className={`h-4 w-4 ${isInCompareList(product.id) ? "text-primary" : ""}`} />
+              {isInCompareList(product.id) ? 
+                <span className="h-4 w-4 text-primary">✓</span> : 
+                <span className="h-4 w-4">+</span>
+              }
             </Button>
           </div>
         </div>
@@ -133,6 +142,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </Button>
           <Button asChild size="sm" variant="outline" className="flex-1">
             <Link to={`/prices/${product.id}`}>
+              <ShoppingCart className="mr-1 h-4 w-4" />
               Compare Prices
             </Link>
           </Button>

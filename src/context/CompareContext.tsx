@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,13 +36,23 @@ export const CompareProvider = ({ children }: { children: React.ReactNode }) => 
   const { toast } = useToast();
   
   const [compareList, setCompareList] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('compareList');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('compareList');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error('Error parsing compareList from localStorage', error);
+      return [];
+    }
   });
 
   const [favorites, setFavorites] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('favorites');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('favorites');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error('Error parsing favorites from localStorage', error);
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -88,7 +99,7 @@ export const CompareProvider = ({ children }: { children: React.ReactNode }) => 
 
   const addToFavorites = (product: Product) => {
     if (!favorites.some(item => item.id === product.id)) {
-      setFavorites([...favorites, product]);
+      setFavorites(prev => [...prev, product]);
       toast({
         title: 'Added to favorites',
         description: `${product.name} has been added to your favorites.`,
