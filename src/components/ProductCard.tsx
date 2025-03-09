@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,7 @@ const ProductCard = ({
       </Link>
       
       <CardContent className="p-4">
-        <div className="no name visible man">
+        <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <p className="text-sm text-muted-foreground">{product.brand}</p>
             <Link to={`/product/${product.id}`}>
