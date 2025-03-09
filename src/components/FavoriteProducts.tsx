@@ -21,8 +21,13 @@ const FavoriteProducts = () => {
       try {
         const detailedProducts = await Promise.all(
           favorites.map(async (fav) => {
-            const product = await SearchService.getSmartphoneById(fav.id);
-            return product;
+            try {
+              const product = await SearchService.getSmartphoneById(fav.id);
+              return product;
+            } catch (error) {
+              console.error(`Error fetching details for ${fav.id}:`, error);
+              return null;
+            }
           })
         );
         
@@ -89,23 +94,23 @@ const FavoriteProducts = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {expandedProducts.length > 0 ? (
-            expandedProducts.slice(0, 4).map((product, index) => (
+            expandedProducts.map((product, index) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
               >
                 <ProductCard product={product} />
               </motion.div>
             ))
           ) : (
-            favorites.slice(0, 4).map((fav, index) => (
+            favorites.map((fav, index) => (
               <motion.div
                 key={fav.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
                 className="bg-card rounded-lg border overflow-hidden hover:shadow-md transition-shadow"
               >
                 <div className="p-4 text-center">

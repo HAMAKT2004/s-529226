@@ -71,59 +71,17 @@ const TrendingPhones = () => {
     );
   }
 
-  // Format price in Indian Rupees
+  // Format price in Indian Rupees - generate unique prices based on product id
   const formatPrice = (id: string) => {
-    // Generate different prices based on the product ID hash
-    const idHash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const priceBase = (idHash % 50000) + 10000; // Different range for each product
+    // Generate different prices based on the product ID hash - using a more unique approach
+    const idHash = id.split('').reduce((acc, char, idx) => acc + char.charCodeAt(0) * (idx + 1), 0);
+    const priceBase = (idHash % 90000) + 10000; // Different range for each product
     
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0
     }).format(priceBase);
-  };
-
-  const toggleFavorite = (phone: Smartphone, event: React.MouseEvent) => {
-    event.preventDefault(); // Prevent navigation when clicking the button
-    event.stopPropagation(); // Stop event propagation
-    
-    if (isInFavorites(phone.id)) {
-      removeFromFavorites(phone.id);
-      toast({
-        title: "Removed from favorites",
-        description: `${phone.name} has been removed from your favorites.`,
-      });
-    } else {
-      addToFavorites({
-        id: phone.id,
-        name: phone.name,
-        image: phone.image,
-        brand: phone.brand
-      });
-      toast({
-        title: "Added to favorites",
-        description: `${phone.name} has been added to your favorites.`,
-      });
-    }
-  };
-
-  const handleAddToCompare = (phone: Smartphone, event: React.MouseEvent) => {
-    event.preventDefault(); // Prevent navigation when clicking the button
-    event.stopPropagation(); // Stop event propagation
-    
-    if (!isInCompareList(phone.id)) {
-      addToCompare({
-        id: phone.id,
-        name: phone.name,
-        image: phone.image,
-        brand: phone.brand
-      });
-      toast({
-        title: "Added to compare list",
-        description: `${phone.name} has been added to your compare list.`,
-      });
-    }
   };
 
   return (
@@ -152,7 +110,7 @@ const TrendingPhones = () => {
               <div>
                 <p className="text-sm text-muted-foreground">{phone.brand}</p>
                 <Link to={`/product/${phone.id}`}>
-                  <h3 className="font-medium text-lg hover:text-primary transition-colors">{phone.name}</h3>
+                  <h3 className="font-medium text-lg hover:text-primary transition-colors line-clamp-2">{phone.name}</h3>
                 </Link>
                 <p className="font-bold mt-1">{formatPrice(phone.id)}</p>
               </div>
@@ -161,14 +119,50 @@ const TrendingPhones = () => {
                   size="sm"
                   variant="outline"
                   className={isInFavorites(phone.id) ? "text-red-500 hover:text-red-600" : ""}
-                  onClick={(e) => toggleFavorite(phone, e)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isInFavorites(phone.id)) {
+                      removeFromFavorites(phone.id);
+                      toast({
+                        title: "Removed from favorites",
+                        description: `${phone.name} has been removed from your favorites.`,
+                      });
+                    } else {
+                      addToFavorites({
+                        id: phone.id,
+                        name: phone.name,
+                        image: phone.image,
+                        brand: phone.brand
+                      });
+                      toast({
+                        title: "Added to favorites",
+                        description: `${phone.name} has been added to your favorites.`,
+                      });
+                    }
+                  }}
                 >
                   <Heart className={`h-4 w-4 ${isInFavorites(phone.id) ? "fill-current" : ""}`} />
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={(e) => handleAddToCompare(phone, e)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!isInCompareList(phone.id)) {
+                      addToCompare({
+                        id: phone.id,
+                        name: phone.name,
+                        image: phone.image,
+                        brand: phone.brand
+                      });
+                      toast({
+                        title: "Added to compare list",
+                        description: `${phone.name} has been added to your compare list.`,
+                      });
+                    }
+                  }}
                   disabled={isInCompareList(phone.id)}
                 >
                   {isInCompareList(phone.id) ? (
@@ -180,29 +174,29 @@ const TrendingPhones = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="grid grid-cols-2 gap-2 mt-4 bg-muted/50 rounded-lg p-3">
               {phone.specs?.display && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">Display:</span>
-                  <div>{phone.specs.display.split(',')[0]}</div>
+                  <div className="truncate font-medium">{phone.specs.display.split(',')[0]}</div>
                 </div>
               )}
               {phone.specs?.battery && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">Battery:</span>
-                  <div>{phone.specs.battery}</div>
+                  <div className="truncate font-medium">{phone.specs.battery}</div>
                 </div>
               )}
               {phone.specs?.ram && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">RAM:</span>
-                  <div>{phone.specs.ram}</div>
+                  <div className="truncate font-medium">{phone.specs.ram}</div>
                 </div>
               )}
               {phone.specs?.camera && (
                 <div className="text-xs">
                   <span className="text-muted-foreground">Camera:</span>
-                  <div>{phone.specs.camera}</div>
+                  <div className="truncate font-medium">{phone.specs.camera}</div>
                 </div>
               )}
             </div>

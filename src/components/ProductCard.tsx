@@ -21,17 +21,19 @@ const ProductCard = ({ product }: ProductCardProps) => {
     e.preventDefault();
     e.stopPropagation();
     
-    addToCompare({
-      id: product.id,
-      name: product.name,
-      image: product.image,
-      brand: product.brand
-    });
-    
-    toast({
-      title: "Added to compare list",
-      description: `${product.name} has been added to your compare list.`,
-    });
+    if (!isInCompareList(product.id)) {
+      addToCompare({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        brand: product.brand
+      });
+      
+      toast({
+        title: "Added to compare list",
+        description: `${product.name} has been added to your compare list.`,
+      });
+    }
   };
 
   const toggleFavorite = (e: React.MouseEvent) => {

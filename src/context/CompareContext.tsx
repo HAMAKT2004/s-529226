@@ -74,11 +74,15 @@ export const CompareProvider = ({ children }: { children: React.ReactNode }) => 
     }
     if (!compareList.some(item => item.id === product.id)) {
       setCompareList(prev => [...prev, product]);
+      toast({
+        title: 'Added to compare list',
+        description: `${product.name} has been added to your compare list.`,
+      });
     }
   };
 
   const removeFromCompare = (productId: string) => {
-    setCompareList(compareList.filter(product => product.id !== productId));
+    setCompareList(prev => prev.filter(product => product.id !== productId));
     toast({
       title: 'Removed from compare',
       description: 'Product has been removed from your compare list.',
@@ -100,19 +104,13 @@ export const CompareProvider = ({ children }: { children: React.ReactNode }) => 
   const addToFavorites = (product: Product) => {
     if (!favorites.some(item => item.id === product.id)) {
       setFavorites(prev => [...prev, product]);
-      toast({
-        title: 'Added to favorites',
-        description: `${product.name} has been added to your favorites.`,
-      });
+      // Toast message moved to the component level for better user experience
     }
   };
 
   const removeFromFavorites = (productId: string) => {
-    setFavorites(favorites.filter(product => product.id !== productId));
-    toast({
-      title: 'Removed from favorites',
-      description: 'Product has been removed from your favorites.',
-    });
+    setFavorites(prev => prev.filter(product => product.id !== productId));
+    // Toast message moved to the component level for better user experience
   };
 
   const clearFavorites = () => {
